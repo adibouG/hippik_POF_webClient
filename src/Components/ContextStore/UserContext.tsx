@@ -3,12 +3,12 @@ import type { User } from '../../Types/@types.user';
 
 
 export type UserContextType = {
-    user?: User;
-    loggedAt?: Date;
+    user: User | null;
+    loggedAt: Date | null;
   }
 
-  
-const UserContext = React.createContext<UserContextType>();
+const NoUser: UserContextType = { user: null , loggedAt: null };
+const UserContext = React.createContext<UserContextType | null>(NoUser);
 
 type Props = {
     children?: React.ReactNode;

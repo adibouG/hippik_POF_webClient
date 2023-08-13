@@ -8,13 +8,14 @@ import { useContext } from 'react';
 
 import type { User } from '../../Types/@types.user';
 function AppHeader() {
-  const userData: UserContextType = useContext(UserContext);
+  const userData: UserContextType  | null = useContext(UserContext);
+  const user: User | null = userData?.user || null ;
   return (
   
       <Stack direction="horizontal" as="header" className="App-header">
         <NavigationMenu />
         <div className="searchcontainer"></div>   
-        <UserMenu user={userData?.user} />
+        <UserMenu user={user} />
       </Stack>
 
     );

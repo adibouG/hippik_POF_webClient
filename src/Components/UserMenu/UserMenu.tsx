@@ -5,7 +5,7 @@ import UserCard from '../UserCard/UserCard';
 import type { User } from '../../Types/@types.user';
 
 interface Props {
-  user?: User ;
+  user?: User | null;
 }
 
 function UserMenu({user}: Props) {
