@@ -32,7 +32,7 @@ function NavigationMenu() {
                   <Nav.Link href="#action6">Users</Nav.Link>
                   <Nav.Link href="#action7">Settings</Nav.Link>
                 </Nav>
-               
+        
               </Offcanvas.Body>
             </Navbar.Offcanvas>
           </Container>

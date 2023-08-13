@@ -2,17 +2,19 @@ import Button from 'react-bootstrap/Button';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import UserCard from '../UserCard/UserCard';
+import type { User } from '../../Types/@types.user';
 
+interface Props {
+  user?: User ;
+}
 
-
-
-
-function UserMenu() {
-  const isLogged = true;
-    return (
-      <DropdownButton id="dropdown-basic-button" title="Dropdown button">
+function UserMenu({user}: Props) {
+  const isLogged = user ? true : false;
+  return (
+      
+      <DropdownButton style={{zIndex: 1030}} id="dropdown-basic-button" title="Dropdown button">
         
-        <UserCard children={null}/>
+        <UserCard user={user}></UserCard>
 
         {
           (isLogged) ? 

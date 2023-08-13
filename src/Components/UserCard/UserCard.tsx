@@ -2,28 +2,33 @@
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import RoundUserPic from '../RoundUserPic/RoundUserPic';
-import { Component, ReactComponentElement } from 'react';
+
+export interface User {
+  name?: string;
+  role?: string ;
+  mail?: string ;
+  imgSrc?: string;
+}
+
 
 type Props = {
-    children: React.ReactNode
+  user?: NonNullable<User> | null;
+  children?: React.ReactNode[] ;
 } 
 
-function UserCard(children: Props) {
+function UserCard({user, children}: Props) {
 
-    const name: string | undefined = "me";
-    const role: string | undefined = "dev";
-    const mail: string | undefined = "mail";
-    const userImgSrc: string | undefined = "/fdsf/fds.jpg"; 
-      
+  
+
     return (
       <Card style={{ width: '18rem' }}>
-        <RoundUserPic userImgSrc={userImgSrc} />
+        <RoundUserPic userImgSrc={user?.imgSrc} />
         <Card.Body>
-          <Card.Title>{role}</Card.Title>
+          <Card.Title>{user?.role}</Card.Title>
           <Card.Text>
-          {`${name}, ${mail}`}
+          {`${user?.name}, ${user?.mail}`}
           </Card.Text>
-            [children]
+            {children}
         </Card.Body>
       </Card>
     );
