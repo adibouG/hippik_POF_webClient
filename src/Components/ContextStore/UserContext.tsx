@@ -8,7 +8,7 @@ export type UserContextType = {
   }
 
 const NoUser: UserContextType = { user: null , loggedAt: null };
-const UserContext = React.createContext<UserContextType | null>(NoUser);
+export const UserContext = React.createContext<UserContextType | null>(NoUser);
 
 type Props = {
     children?: React.ReactNode;
@@ -16,14 +16,24 @@ type Props = {
 
 function UserProvider ({ children }: Props ) {
   const [user, setUser] = React.useState<User | null>(null);
-}
+  const [loggedAt, setLoggedAt] = React.useState<Date | null>(null);
+  const userUpdate = (user: User) : void => {}
 
-function UserLogIn (user: User) : void {}
+  const userLogIn = (user: User) : void => {}
 
-function UserLogOut () : boolean { 
+  const userLogOut = () : boolean => { 
     if (1) return true;
     return false;
-} 
+  } 
+
+  const userContextObj = { user, loggedAt, userUpdate, userLogIn, userLogOut };
+  
+  return  (
+    <UserContext.Provider value={userContextObj} >
+        {children}
+    </UserContext.Provider>
+  )
+}
 
 
-  export default UserContext;
+  export default UserProvider;

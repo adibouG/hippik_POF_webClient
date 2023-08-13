@@ -1,7 +1,7 @@
 import Stack from 'react-bootstrap/Stack';
 import NavigationMenu from '../../Components/NavigationMenu/NavigationMenu';
 import UserMenu from '../../Components/UserMenu/UserMenu';
-import UserContext from '../../Components/ContextStore/UserContext';
+import {UserContext} from '../../Components/ContextStore/UserContext';
 import type {UserContextType} from '../../Components/ContextStore/UserContext';
 
 import { useContext } from 'react';
