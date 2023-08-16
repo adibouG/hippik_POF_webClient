@@ -1,8 +1,8 @@
-import {ReactNode} from 'react';
+//import {ReactNode} from 'react';
 import logo from './logo.svg';
 
 type Props = {
-    children: ReactNode
+    children: React. ReactNode
 } 
 
 function AppFooter({children}: Props) {

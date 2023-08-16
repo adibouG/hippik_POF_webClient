@@ -1,5 +1,5 @@
 import React from 'react';
-import type { User } from '../../Types/@types.user';
+import type { User } from '../Types/@types.user';
 
 
 export type UserContextType = {
@@ -15,6 +15,7 @@ type Props = {
 }
 
 function UserProvider ({ children }: Props ) {
+  
   const [user, setUser] = React.useState<User | null>(null);
   const [loggedAt, setLoggedAt] = React.useState<Date | null>(null);
   const userUpdate = (user: User) : void => {}

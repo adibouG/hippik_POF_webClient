@@ -5,11 +5,11 @@ import Navbar from 'react-bootstrap/Navbar';
 import Offcanvas from 'react-bootstrap/Offcanvas';
 
 function NavigationMenu() {
-  let expand = 'lg';
+  let expand = 'false';
   return (
     <>
       
-        <Navbar expand={expand} className="bg-body-tertiary fixed-top">
+        <Navbar expand={expand} className="bg-body-tertiary">
           <Container fluid>
             <Navbar.Toggle aria-controls={`offcanvasNavbar-expand-${expand}`} />
             <Navbar.Offcanvas

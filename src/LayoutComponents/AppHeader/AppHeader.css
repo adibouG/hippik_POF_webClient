@@ -1,0 +1,17 @@
+
+.App-header {
+    min-height: 10vh;
+    max-height: 75px;
+    width: 100vw;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 1 px 1px 15px rgba(161, 182, 253, 0.825);
+    background-color: #282c34;
+    font-size: calc(10px + 2vmin);
+    color: white;
+    background-color: var(--background-color1);
+    padding: 0 30px;
+    z-index: 10;
+  }

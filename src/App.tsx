@@ -1,6 +1,7 @@
 import React from 'react';
 import logo from './logo.svg';
 import AppLayout from './LayoutComponents';
+import PageIndex from './Pages';
 
 import './App.css';
 
