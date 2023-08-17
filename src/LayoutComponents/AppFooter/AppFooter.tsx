@@ -5,11 +5,11 @@ type Props = {
     children: React. ReactNode
 } 
 
-function AppFooter({children}: Props) {
+function AppFooter() {
 
   return (
     <div className="App-footer">
-        [children]
+        {/* [children] */}
     </div>
     );
 }

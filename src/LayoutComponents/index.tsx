@@ -5,13 +5,16 @@ import AppBody from '../LayoutComponents/AppBody/AppBody';
 import AppFooter from '../LayoutComponents/AppFooter/AppFooter';
 
 
-function AppLayout() {
+interface Props {
+  children?: React.ReactNode [];
+}
+function AppLayout({children}: Props ) {
 
   return (
     <Stack>
       <AppHeader />
-      <AppBody />
-      <AppFooter  children={null} />
+      <AppBody>{children}</AppBody>
+      <AppFooter  />
     </Stack>
     );
 }
