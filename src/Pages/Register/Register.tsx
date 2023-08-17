@@ -3,6 +3,21 @@ import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 
+const cont = { 
+  margin: "3% auto",
+  width: 'auto', 
+  display: 'flex',
+  flexFlow : "column",
+  justifyContent: 'center',
+  alignItems: 'center' 
+};
+const form = { 
+  border:"1px solid grey",
+  padding: '15px', 
+  borderRadius: '15px', 
+  boxShadow: '0px 0px 20px 20px' 
+};
+
 function Register() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -28,8 +43,8 @@ function Register() {
 
   return (
   
-    <Container style={{ margin: '3% auto', width: 'auto',display: 'flex',flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }} >
-      <Form onSubmit={ handleSubmit } style={{border:"1px solid grey" ,padding: '15px', borderRadius: '15px', boxShadow: '0px 0px 20px 20px'}}>
+    <Container style={ cont } >
+      <Form onSubmit={ handleSubmit } style={ form }>
         <Form.Label>
           <h1>Register User Account</h1>
         </Form.Label>
