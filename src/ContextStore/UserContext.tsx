@@ -43,15 +43,19 @@ function UserProvider ({ children }: Props ) {
   
   const userUpdate = (user: User) : void => {}
   
-  const userLogIn = async (data: FormData, header: Headers, loginCallback?: Function | null)  : Promise<boolean> => {
+  const userLogIn = async (data: any, header: Headers, loginCallback?: Function | null)  : Promise<boolean> => {
     try 
     {
       actions.current.push (Action.LogInRequest);    
-      const req: Request = new Request ('/api/login', { method: 'POST', body: data, headers: header });
-      const res: Response= await fetch (req);
+      const user = data.get ('user') as string; 
+      const pwd = data.get ('pwd') as string; 
+      const dataToSend =  { user , pwd }; 
+      
+      //const req: RequestInfo = new Request ('api/login', { method: 'POST', data: d, headers: header });
+      const res: Response = await fetch ('api/login', {method: 'POST', body: JSON.stringify(dataToSend), headers: header });
       if (res.ok)  
       { 
-        console.log (`user ${data.get ('user')} logged in successfully`);
+        console.log (`user ${user} logged in successfully`);
         const userData = await res.json ();
         console.log (userData);
         const logged = new UserData (userData);
@@ -69,7 +73,6 @@ function UserProvider ({ children }: Props ) {
     {
       const err: Error = e as Error;
       alert (err.message);
-
       return false;
     }  
   }

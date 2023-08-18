@@ -8,12 +8,12 @@ import AppFooter from './AppFooter/AppFooter';
 interface Props {
   children?: React.ReactNode;
 }
-function AppLayout({children}: Props ) {
 
+function AppLayout({children}: Props ) {
   return (
     <Stack>
       <AppHeader />
-      <AppBody>{[children]}</AppBody>
+      <AppBody>{children}</AppBody>
       <AppFooter  />
     </Stack>
     );

@@ -16,14 +16,12 @@ function PageIndex() {
           {
             user && user.user && user.loggedAt ?
             <>
-              <Route path="/register" Component={Register} />
-              <Route path="/main" Component={MainBoard} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/main" element={<MainBoard />} />
             </>
             :
                         
-              <Route path="/*" >
-                <LogIn userContext={user} />
-              </Route>
+              <Route path="/*" element={ <LogIn userContext={user} /> } />
           }       
 
         </Routes>
