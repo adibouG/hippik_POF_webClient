@@ -1,15 +1,20 @@
 
-import AppLayout from './LayoutComponents';
+import AppLayout from './Components/AppLayout' ;
 import PageIndex from './Pages';
 
+import UserProvider from './ContextStore/UserContext';
 import './App.css';
-
 function App() {
-
+  
+  
   return (
     <div className="App">
-      <AppLayout />
-      <PageIndex />
+
+    <UserProvider>
+        <AppLayout>
+          <PageIndex  />
+        </AppLayout>
+      </UserProvider> 
     </div>
     );
 }
