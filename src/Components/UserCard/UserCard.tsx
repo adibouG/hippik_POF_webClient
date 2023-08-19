@@ -12,7 +12,7 @@ interface Props {
 function UserCard({user, onLine, children}: Props) {
 
   const uName: string = user?.name || ''; 
-  const uMail: string = user?.mail || ''; 
+  const uMail: string = user?.email || ''; 
   const uRole: string = user?.role || ''; 
 
     return (

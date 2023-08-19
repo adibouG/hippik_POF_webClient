@@ -1,9 +1,9 @@
 
 export interface User {
   id?: number;
-  name?: string;
+  name: string;
   role?: string ;
-  mail?: string ;
+  email: string ;
   imgSrc?: string;
 }
 
@@ -13,9 +13,9 @@ export interface UserDisplayData extends User {
 
 export class UserData implements UserDisplayData {
   id?: number;
-  name?: string;
+  name: string;
   role?: string ;
-  mail?: string ;
+  email: string ;
   imgSrc?: string;
   status?: string;
   constructor ( user: User ) 
@@ -23,7 +23,7 @@ export class UserData implements UserDisplayData {
     this.id = user.id ;
     this.name = user.name ;
     this.role = user.role;
-    this.mail = user.mail ;
+    this.email = user.email ;
     this.imgSrc = user.imgSrc;
     this.status = '';
   }

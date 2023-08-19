@@ -28,7 +28,7 @@ function UserMenu({ user }: Props) {
           { isOnline &&
             <NavDropdown drop="down-centered" align="end" style={{zIndex: 1030}} id="dropdown-basic-button" title="">
             {         
-              (user) ? 
+              (isLogged) ? 
                 <>
                   <NavDropdown.Item href="#/action-1">Edit</NavDropdown.Item>
                   <NavDropdown.Item href="#/action-2">LogOut</NavDropdown.Item>
