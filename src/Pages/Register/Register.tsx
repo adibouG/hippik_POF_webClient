@@ -2,7 +2,14 @@
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import * as UserContext from '../../ContextStore/UserContext';
+import type { User } from '../../Types/@types.user';
 
+import { Navigate, useNavigate} from "react-router-dom";
+
+interface Props {
+    user?: User | null;
+}
 const cont = { 
   margin: "3% auto",
   width: 'auto', 
@@ -18,7 +25,9 @@ const form = {
   boxShadow: '0px 0px 20px 20px' 
 };
 
-function Register() {
+function Register({user}: Props) {
+
+  const isAdmin = user?.role === 'admin' || user?.role === 'test' ;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
    
@@ -29,7 +38,7 @@ function Register() {
       event.stopPropagation ();
       const data: FormData = new FormData (event.currentTarget) ;
       const head:  Headers = new Headers ({ "Content-Type": "multipart/form-data" }) ;
-      const req:  Request = new Request ('/api/users', { method: 'POST', body: data, headers: head });
+      const req:  Request = new Request ('/api/users/register', { method: 'POST', body: data, headers: head });
       const res: Response= await fetch (req);
       if (res.ok) return alert (`user ${data.get ('name')} created, an email  was sent to ${data.get ('mail')}`)
       else throw  new Error (res.statusText)
@@ -60,9 +69,13 @@ function Register() {
           <Form.Label>Password</Form.Label>
           <Form.Control name='pwd' type="password"  />
         </Form.Group>
-        <Form.Group className="mb-3" controlId="IsAdminInput">
-          <Form.Check name='isAdmin' type="checkbox" label="Create Admin Account" />
-        </Form.Group>
+        { 
+          isAdmin 
+          &&
+            <Form.Group className="mb-3" controlId="IsAdminInput">
+              <Form.Check name='isAdmin' type="checkbox" label="Create Admin Account" />
+            </Form.Group>
+        }
         <Button variant="primary" type="submit">
           Submit
         </Button>

@@ -14,26 +14,27 @@ interface Props {
 type Style = { container:  React.CSSProperties; image:  React.CSSProperties; badge:  React.CSSProperties } ;
 const styling: Style = {
   container: {
-    height: "100%", 
+  
     position: "inherit", 
     zIndex: 1030, 
     right: 0, 
-    padding: 0, 
+    padding: '2px', 
     minWidth: "75px", 
     minHeight: "50px",
+    maxHeight: "75px",
     display: 'flex',
     flexFlow: "row-reverse"
    },
   image: {  
     position: "absolute", 
     objectFit: 'contain', 
-    height:"100%" ,
-    minHeight: "50px"
+    height:"98%" ,
+    minHeight: "45px",
   },
   badge: {
     position: 'absolute',
-    bottom: 0,
-    right: "25px",
+    bottom: '2px',
+    right: "35px",
     fontSize:'0.5em' 
   }
 };

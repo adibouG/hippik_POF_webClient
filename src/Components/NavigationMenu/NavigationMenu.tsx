@@ -3,8 +3,27 @@ import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import Offcanvas from 'react-bootstrap/Offcanvas';
+import type { User } from '../../Types/@types.user';
+import { Link, NavLink } from 'react-router-dom';
+import Links  from '../Links/Links';
 
-function NavigationMenu() {
+interface Props {
+  user?: User | null;
+}
+
+const style = {
+  display: 'block',
+  padding: 'var(--bs-nav-link-padding-y) var(--bs-nav-link-padding-x)',
+  fontSize: 'var(--bs-nav-link-font-size)',
+  fontWeight: 'var(--bs-nav-link-font-weight)',
+  color: 'var(--bs-nav-link-color)',
+  textDecoration: 'none',
+  background: '0 0',
+  border: '0',
+  transition: 'color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out',
+}
+
+function NavigationMenu ({user}: Props) {
   let expand = 'false';
   return (
     <>
@@ -24,15 +43,14 @@ function NavigationMenu() {
               </Offcanvas.Header>
               <Offcanvas.Body>
                 <Nav className="justify-content-end flex-grow-1 pe-3">
-                  <Nav.Link href="#action1">Dashboard</Nav.Link>
-                  <Nav.Link href="#action2">Contests</Nav.Link>
-                  <Nav.Link href="#action3">Participants</Nav.Link>
-                  <Nav.Link href="#action4">Statistics</Nav.Link>
-                  <Nav.Link href="#action5">Chats</Nav.Link>
-                  <Nav.Link href="#action6">Users</Nav.Link>
-                  <Nav.Link href="#action7">Settings</Nav.Link>
+                  <Links  to="/main">Dashboard</Links>
+                  <Links  to="/contests">Contests</Links>
+                  <Links to="/chats">Chats</Links>
+                  <Links to="/participants">Participants</Links>
+                  <Links to="/statistics">Statistics</Links>
+                  <Links to="/users"> Users</Links>
+                  <Links to="/settings">Settings</Links>
                 </Nav>
-        
               </Offcanvas.Body>
             </Navbar.Offcanvas>
           </Container>

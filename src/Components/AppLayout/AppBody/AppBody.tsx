@@ -11,9 +11,9 @@ function AppBody({ children }: Props) {
   
 
 <div className="main-container">
-        <div className="main">
-          {children}
-        </div>
+  <div className="main">
+    {children}
+  </div>
 </div>
 
 );

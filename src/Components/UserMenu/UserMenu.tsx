@@ -4,8 +4,9 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import UserCard from '../UserCard/UserCard';
-import type { User } from '../../Types/@types.user';
+import  { User } from '../../Types/@types.user';
 import { useOnlineStatus } from '../../Utils/useOnlineStatus.js';
+import Links from '../Links/Links';
 
 interface Props {
   user?: User | null;
@@ -30,13 +31,13 @@ function UserMenu({ user }: Props) {
             {         
               (isLogged) ? 
                 <>
-                  <NavDropdown.Item href="#/action-1">Edit</NavDropdown.Item>
-                  <NavDropdown.Item href="#/action-2">LogOut</NavDropdown.Item>
+                  <NavDropdown.Item><Links to="/users">Edit</Links></NavDropdown.Item>
+                  <NavDropdown.Item><Links to="/users/logout">LogOut</Links></NavDropdown.Item>
                 </>
               :
                 <>
-                  <NavDropdown.Item href="#/action-3">Log In</NavDropdown.Item>
-                  <NavDropdown.Item href="/Register">Register</NavDropdown.Item>
+                  <NavDropdown.Item><Links to="/">Log In</Links></NavDropdown.Item>
+                  <NavDropdown.Item><Links to="/Register">Register</Links></NavDropdown.Item>
                 </>
             }
             </NavDropdown>
