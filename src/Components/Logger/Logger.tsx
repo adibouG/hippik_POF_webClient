@@ -1,11 +1,16 @@
 
  
-/** Signature of a logging function */
+/*
+*  Signature of a logging function 
+*/
 export interface LogFn {
   (message?: any, ...optionalParams: any[]): void;
 }
 
-/** Basic logger interface */
+/*
+* Basic logger interface 
+*/
+
 export interface Logger {
   log: LogFn;
   warn: LogFn;
@@ -15,7 +20,10 @@ export interface Logger {
   send?: () => Promise<void>; 
 }
 
-/** Log levels */
+/*
+* Log levels 
+*/
+
 export type LogLevel = 'log' | 'warn' | 'error';
 
 const NO_OP: LogFn = (message?: any, ...optionalParams: any[]) => {};
@@ -23,26 +31,28 @@ const NO_OP: LogFn = (message?: any, ...optionalParams: any[]) => {};
 class LogFile {
     filename: string;
     filehandle?: FileSystemFileHandle;
-    fileReady?: boolean;
+    private fileReady?: boolean;
  
     constructor (file: {filename: string, filehandle?: FileSystemFileHandle} )
     {
         this.fileReady = false;
         this.filename = file.filename;
         navigator.storage.getDirectory()
-            .then ( dirHandle => dirHandle.getFileHandle(this.filename , {create: true,}))
+            .then ( dir => dir.getFileHandle(this.filename , {create: true,}))
             .then ( handle => this.filehandle = handle)
             .then (() => this.fileReady = true)
             .catch ( err => err ) ;       
             
     }
 
-
+    // get a new file handler 
     async getHandle () {
-        const opfs = await navigator.storage.getDirectory(); 
-        const fileHandle = await opfs.getFileHandle(this.filename , {create: true,});   
-        this.filehandle = fileHandle;
+        const dir  = await navigator.storage.getDirectory(); 
+        const fileHandle = await dir.getFileHandle(this.filename , {create: true,});   
+        return this.filehandle = fileHandle;
     }
+
+    //write to file
     async writeLogs (text: string[]) {
         try
         {
@@ -69,12 +79,16 @@ class LogFile {
         }
     }        
 }
-/** Logger which outputs to the browser console */
+
+/*
+* Logger which outputs to the browser console and a file if specified (file should be sent to server at session end)
+*/
+
 export class ConsoleLogger implements Logger {
   readonly log: LogFn;
   readonly warn: LogFn;
   readonly error: LogFn;
-  readonly file?: string | LogFile; 
+  file?: string | LogFile; 
   readonly send?: () => Promise<void>; 
 
   constructor(options?: { level? : LogLevel, file? : string | LogFile }) {
@@ -84,8 +98,8 @@ export class ConsoleLogger implements Logger {
     {
         this.file = typeof file === 'string' ? new LogFile ({ filename: file  + '_' + Date.now ()}) : file;
         this.send = async () => {
-                    //send file to serverr
-           };
+            //TODO: send file to serverr
+        };
     }
 
     this.error = console.error.bind(console);
@@ -105,16 +119,17 @@ export class ConsoleLogger implements Logger {
 
     this.log = console.log.bind(console);
   }
-
-  
 }
 
-/** The App environment */
-export type Environment = 'development' | 'production';
+/*
+* The App environment 
+*/
+export enum Env { development, production };
 
-export const APP_ENV: Environment = process.env.REACT_APP_APP_ENV /*NODE_ENV*/ === 'production' ? 'production' : 'development';
+export const APP_ENV: Env = process.env.REACT_APP_APP_ENV?.toLowerCase () /*NODE_ENV*/ === 'prod' ? Env.production : Env.development;
 
-export const LOG_LEVEL: LogLevel = APP_ENV === 'production' ? 'warn' : 'log';
+export const LOG_LEVEL: LogLevel = APP_ENV === Env.production ? 'warn' : 'log';
+
 export const LOG_FILE : string | undefined =  process.env.REACT_APP_APP_LOG_FILE ;
 
 export const logger = new ConsoleLogger({ level: LOG_LEVEL, file: LOG_FILE });

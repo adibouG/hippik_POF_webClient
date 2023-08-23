@@ -20,25 +20,19 @@ const style = {
   transition: 'color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out',
 }
 
-
-
 function Links ({to, children}: Props) {
 
   const changeBackground = (e: React.MouseEvent<HTMLAnchorElement>) => {
-     
       e.currentTarget.style.background = 'grey';
       e.currentTarget.style.color = 'white';
-
   }
 
   const changeBackgroundBack = (e: React.MouseEvent<HTMLAnchorElement>) => {
-     
     e.currentTarget.style.background = '0';
     e.currentTarget.style.color = 'var(--bs-nav-link-color)';
-
-}
+  }
   return (
-    <Nav.Link><NavLink onMouseEnter={changeBackground}  onMouseLeave={changeBackgroundBack} style={style} to={to}>{children}</NavLink></Nav.Link>
+    <Nav.Item><NavLink onMouseEnter={changeBackground}  onMouseLeave={changeBackgroundBack} style={style} to={to}>{children}</NavLink></Nav.Item>
   );
 }
 

@@ -10,6 +10,7 @@ type Props = {
     headers?: string [];
     data: string[][] | Array<Object> ;     
     filter?: boolean;
+    editable?: boolean;
 }
 
 
@@ -69,36 +70,44 @@ type TableRowData = {
     isHeader?: boolean;
     rowCount?: boolean;
     id?: string|number;
+    editable?: boolean;
 }
 
 const TableCell = ({data, isHeader = false, id = 0}: TableCellData) => {
     if (isHeader) return <th key={`${id}${data}`}>{data}</th>;
     return <td key={`${id}${data}`}>{data}</td>;
 };    
-const TableRow = ({ data, isHeader = false, rowCount = false, id = 0}: TableRowData) => {
+const TableRow = ({ data, isHeader = false, rowCount = false, id = 0, editable = false }: TableRowData) => {
     const finalRow = [] ;
     if (isHeader && rowCount) finalRow.push (<TableCell data={''} isHeader={true} id={'header'} />);
     else if (rowCount) finalRow.push ( <TableCell data={id} isHeader={isHeader} id={id} />); 
     data.map ((val, idx) => finalRow.push (<TableCell data={val} isHeader={isHeader} id={`${id}${idx}`} /> ));                   
     
+    if (editable) finalRow.push (<TableCell data={''} isHeader={isHeader} id={`edit${id}`} />  )
+
     return <tr key={`row${id}`}>{finalRow}</tr>;
 }    
 
-function TableList ({ title, data, headers = [], rowCount = false ,filter = false }:Props) {
+function TableList ({ title, data, headers = [], rowCount = false ,filter = false, editable=false }:Props) {
  
 
     const datalist = getDataAsTable(data, headers);
     let colNum: number = datalist?.headArray.length ; 
     
     if (colNum > 0 && rowCount) colNum++ ;
-    
-    
-    const makeTBody = (data: string[][]) => data.map ((row, id)=> <TableRow data={row} isHeader={false} id={id} rowCount={rowCount} />);
-    
-    
+      
+    const handleClick = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+        const {target} = e;
+        const element = target as HTMLElement;
+        const row = element.closest ('tr') ;
+        if (row) {
+            alert (row?.id);
+            //setSelectedRow (row.id)
+        }
+    }
     return (
     
-    <Table title={title}   striped bordered hover variant="dark">
+    <Table title={title} onClick={handleClick}  striped bordered hover variant="dark">
         <thead>
         {
             filter && 
@@ -109,13 +118,17 @@ function TableList ({ title, data, headers = [], rowCount = false ,filter = fals
             </tr>
         }
         {
-            headers?.length
+            datalist.headArray?.length
             &&
-            <TableRow  data={datalist.headArray} isHeader={true} rowCount={rowCount}  />
+            <TableRow  data={datalist.headArray} isHeader={true} rowCount={rowCount} editable={editable} />
         }   
         </thead>
         <tbody>
-             {makeTBody (datalist.dataArray)}
+        {
+            datalist.dataArray?.length
+            &&
+            datalist.dataArray.map ((row, id) => <TableRow data={row} isHeader={false} id={id} rowCount={rowCount} editable={editable} />)
+        }   
       </tbody>
     </Table>
   );
