@@ -46,9 +46,9 @@ function getDataAsTable (data: string[][] | Array<object>, headers: string[] | n
         {
             if (!headers || !headers.length)
             {
-                headArray = Object(data.at (0)).keys ();
+                headArray = Object.keys (el as object);
             }
-            dataArray = data.map ((v) => Object(v).values ()) ;
+            dataArray = data.map ((v) => Object.values (v)) ;
         }
     }
     else if (headers?.length)
@@ -58,9 +58,33 @@ function getDataAsTable (data: string[][] | Array<object>, headers: string[] | n
 
     return { headArray, dataArray } ;
 }
+type TableCellData = {
+    data: string | number;
+    isHeader: boolean;
+    id: string|number;
+}
 
+type TableRowData = {
+    data: string[];
+    isHeader?: boolean;
+    rowCount?: boolean;
+    id?: string|number;
+}
 
-function TableList ({ title, data, headers = [], rowCount = false ,filter = true }:Props) {
+const TableCell = ({data, isHeader = false, id = 0}: TableCellData) => {
+    if (isHeader) return <th key={`${id}${data}`}>{data}</th>;
+    return <td key={`${id}${data}`}>{data}</td>;
+};    
+const TableRow = ({ data, isHeader = false, rowCount = false, id = 0}: TableRowData) => {
+    const finalRow = [] ;
+    if (isHeader && rowCount) finalRow.push (<TableCell data={''} isHeader={true} id={'header'} />);
+    else if (rowCount) finalRow.push ( <TableCell data={id} isHeader={isHeader} id={id} />); 
+    data.map ((val, idx) => finalRow.push (<TableCell data={val} isHeader={isHeader} id={`${id}${idx}`} /> ));                   
+    
+    return <tr key={`row${id}`}>{finalRow}</tr>;
+}    
+
+function TableList ({ title, data, headers = [], rowCount = false ,filter = false }:Props) {
  
 
     const datalist = getDataAsTable(data, headers);
@@ -68,26 +92,8 @@ function TableList ({ title, data, headers = [], rowCount = false ,filter = true
     
     if (colNum > 0 && rowCount) colNum++ ;
     
-    const makeCell = (data: string, isHeader: boolean) => {
-            if (isHeader) return <th>{data}</th>;
-            return <td>{data}</td>;
-    };    
-    const makeRow = (data: string[], isHeader: boolean, idx: number = 0) => {
-        const finRow = [] ;
-        if (isHeader === true) 
-        {
-            if (rowCount) finRow.push (makeCell ('', isHeader));
-            data.map ((val, id) => finRow.push (makeCell (val, isHeader)));            
-        }    
-        else 
-        {
-            finRow.push ( makeCell (String(idx + 1), isHeader));
-            data.map ((val) => finRow.push (makeCell (val, isHeader)));                   
-        }
-        return finRow;
-    }    
-
-    const makeTBody = (data: string[][]) => data.map ((row, id)=> makeRow (row, false, id))
+    
+    const makeTBody = (data: string[][]) => data.map ((row, id)=> <TableRow data={row} isHeader={false} id={id} rowCount={rowCount} />);
     
     
     return (
@@ -105,9 +111,7 @@ function TableList ({ title, data, headers = [], rowCount = false ,filter = true
         {
             headers?.length
             &&
-            <tr>
-                {makeRow ( datalist.headArray, true)}
-            </tr>
+            <TableRow  data={datalist.headArray} isHeader={true} rowCount={rowCount}  />
         }   
         </thead>
         <tbody>

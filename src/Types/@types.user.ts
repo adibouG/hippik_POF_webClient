@@ -20,9 +20,8 @@ export class UserData implements UserDisplayData {
   imgSrc?: string;
   status?: string;
 
-  constructor ( user: UserDisplayData | UserData ) 
+  constructor ( user: UserData ) 
   {
-
     this.id = user.id ;
     this.name = user.name ;
     this.role = user.role ;

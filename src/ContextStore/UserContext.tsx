@@ -23,6 +23,17 @@ enum Action {
   LogOut
 }
 
+function getCookie (name: string) {
+
+  const cookies = decodeURIComponent (document.cookie).split (';')
+  const cookie = cookies.find (item => item.includes (`${name}=`));
+  if (cookie)
+  {
+    return cookie.substring(`${name}=`.length, cookie.length);
+  }
+  return null;   
+}
+
 function UserProvider ({ children }: Props ) {
   
   const [user, setUser] = React.useState<User | null>(null);
@@ -37,8 +48,26 @@ function UserProvider ({ children }: Props ) {
       setLoggedAt (new Date ());
       actions.current.push (Action.LogIn);
     }
+    else if (actions.current.at (actions.current.length - 1) === Action.LogIn && !user) 
+    {
+      if (loggedAt && ((loggedAt?.getDate () <= (new Date ().getDate () + 1 )) && (loggedAt?.getDate () >= (new Date ().getDate () - 1 ))))
+      {
+        const userCookie = getCookie ('user');
+        const userLoggedAtCookie = getCookie ('userLoggedAt');
+        if (userCookie) 
+        { 
+          const userData = new UserData (JSON.parse (userCookie));
+          setUser (userData);
+        }
+        if (userLoggedAtCookie) 
+        {
+          const userLoggedAt = new Date (userLoggedAtCookie); 
+          setLoggedAt (userLoggedAt); 
+        }
+      }
+    }
     return ;
-  } , [user] );
+  } , [user, loggedAt] );
   
   
   const userUpdate = (user: User) : void => {}
