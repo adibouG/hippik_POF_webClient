@@ -2,6 +2,8 @@ import Table from 'react-bootstrap/Table';
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/Container';
+import { useState } from 'react';
+import reportWebVitals from '../../reportWebVitals';
 
 
 type Props = {
@@ -10,6 +12,22 @@ type Props = {
     headers?: string [];
     data: string[][] | Array<Object> ;     
     filter?: boolean;
+    editable?: boolean;
+    onclickCb? : Function | null;
+    filterCb? : Function | null;
+}
+
+type TableCellData = {
+    celldata: string | number;
+    isHeader: boolean;
+    id: string|number;
+}
+
+type TableRowData = {
+    rowdata: string[];
+    isHeader?: boolean;
+    rowCount?: boolean;
+    id?: string|number;
     editable?: boolean;
 }
 
@@ -20,11 +38,10 @@ const TextFilter = (props: any) =>  {
     const {handler, value} = props;
 return (
   <Container >
-    <FloatingLabel
-    controlId="floatingInput"
-    label="Search"
-    className="mb-3"
-  >
+    <FloatingLabel controlId="searchInput"
+                    label="Search"
+                    className="mb-3"
+    >
     <Form.Control type="search" placeholder="search..." onChange={handler} value={value} />
   </FloatingLabel>
   
@@ -59,37 +76,28 @@ function getDataAsTable (data: string[][] | Array<object>, headers: string[] | n
 
     return { headArray, dataArray } ;
 }
-type TableCellData = {
-    data: string | number;
-    isHeader: boolean;
-    id: string|number;
-}
-
-type TableRowData = {
-    data: string[];
-    isHeader?: boolean;
-    rowCount?: boolean;
-    id?: string|number;
-    editable?: boolean;
-}
-
-const TableCell = ({data, isHeader = false, id = 0}: TableCellData) => {
-    if (isHeader) return <th key={`${id}${data}`}>{data}</th>;
-    return <td key={`${id}${data}`}>{data}</td>;
+const TableCell = ({celldata, isHeader = false, id = 0}: TableCellData) => {
+    if (isHeader) return <th key={`${id}${celldata}`}id={`${id}${celldata}`} >{celldata}</th>;
+    return <td key={`${id}${celldata}`} id={`${id}${celldata}`}>{celldata}</td>;
 };    
-const TableRow = ({ data, isHeader = false, rowCount = false, id = 0, editable = false }: TableRowData) => {
-    const finalRow = [] ;
-    if (isHeader && rowCount) finalRow.push (<TableCell data={''} isHeader={true} id={'header'} />);
-    else if (rowCount) finalRow.push ( <TableCell data={id} isHeader={isHeader} id={id} />); 
-    data.map ((val, idx) => finalRow.push (<TableCell data={val} isHeader={isHeader} id={`${id}${idx}`} /> ));                   
-    
-    if (editable) finalRow.push (<TableCell data={''} isHeader={isHeader} id={`edit${id}`} />  )
 
-    return <tr key={`row${id}`}>{finalRow}</tr>;
+const TableRow = ({ rowdata, isHeader = false, rowCount = false, id = 1, editable = false }: TableRowData) => {
+    const finalRow = [] ;
+    if (isHeader && rowCount) finalRow.push (<TableCell celldata={''} isHeader={true} id={'headerCount'} />);
+    else if (rowCount) finalRow.push ( <TableCell celldata={id} isHeader={isHeader} id={'count' + id} />); 
+    rowdata.map ((val, idx) => finalRow.push (<TableCell celldata={val} isHeader={isHeader} id={`${id}-${idx}`} /> ));                   
+    
+    if (editable) finalRow.push (<TableCell celldata={''} isHeader={isHeader} id={`edit${id}`} />  )
+    
+    return <tr key={`row${id}`} id={String(id)}>{finalRow}</tr>;
 }    
 
-function TableList ({ title, data, headers = [], rowCount = false ,filter = false, editable=false }:Props) {
+function TableList ({ title, data, headers = [], rowCount = false ,filter = false, editable=false, onclickCb = null, filterCb =null }:Props) {
  
+    const [filterText ,setFilterText] = useState<string> () ; 
+    const [selectedRow ,setSelectedRow] = useState<string> () ;
+    const [selectedData ,setSelectedData] = useState<unknown> () ;
+
 
     const datalist = getDataAsTable(data, headers);
     let colNum: number = datalist?.headArray.length ; 
@@ -97,12 +105,17 @@ function TableList ({ title, data, headers = [], rowCount = false ,filter = fals
     if (colNum > 0 && rowCount) colNum++ ;
       
     const handleClick = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+        e.stopPropagation ();
+        e.preventDefault () ;
         const {target} = e;
         const element = target as HTMLElement;
         const row = element.closest ('tr') ;
         if (row) {
-            alert (row?.id);
-            //setSelectedRow (row.id)
+
+            alert (row?.id)
+            console.log(row.childNodes);
+            setSelectedRow (row?.id) ; 
+            if (onclickCb) onclickCb (row?.id)
         }
     }
     return (
@@ -120,14 +133,14 @@ function TableList ({ title, data, headers = [], rowCount = false ,filter = fals
         {
             datalist.headArray?.length
             &&
-            <TableRow  data={datalist.headArray} isHeader={true} rowCount={rowCount} editable={editable} />
+            <TableRow  rowdata={datalist.headArray} isHeader={true} id={'head'} rowCount={rowCount} editable={editable} />
         }   
         </thead>
         <tbody>
         {
             datalist.dataArray?.length
             &&
-            datalist.dataArray.map ((row, id) => <TableRow data={row} isHeader={false} id={id} rowCount={rowCount} editable={editable} />)
+            datalist.dataArray.map ((row, id) => <TableRow rowdata={row} isHeader={false} id={id} rowCount={rowCount} editable={editable} />)
         }   
       </tbody>
     </Table>

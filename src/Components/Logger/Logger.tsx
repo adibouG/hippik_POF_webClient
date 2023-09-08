@@ -20,6 +20,9 @@ export interface Logger {
   send?: () => Promise<void>; 
 }
 
+export interface FileSystemFileHandleExt extends FileSystemFileHandle {
+    createWritable(options?: FileSystemCreateWritableOptions): Promise<FileSystemWritableFileStream>;
+}
 /*
 * Log levels 
 */
@@ -58,20 +61,25 @@ class LogFile {
         {
             if (this.fileReady) 
             {
-                const stream = await this.filehandle?.createWritable ({keepExistingData: true});           
-                const writer = stream?.getWriter ();
-                const encoder = new TextEncoder ();
-                const encoded = encoder.encode (text.join ('\n'));
+                const handle = this.filehandle as FileSystemFileHandle   ;
+                if (window.isSecureContext) {
+                    const stream  = await handle.createWritable ({keepExistingData: true}) ;           
+                    const writer = stream ? stream.getWriter () : null;
+                    if (!writer) throw new Error ('get file writer error');
+                    const encoder = new TextEncoder ();
+                    const encoded = encoder.encode (text.join ('\n'));
                 
-                for (const part in encoded) 
-                {
+                    for (const part in encoded) 
+                    {
+                        await writer?.ready ;
+                        await writer?.write (part);
+                    }
                     await writer?.ready ;
-                    await writer?.write (part);
+                    await writer?.close ();
                 }
-                await writer?.ready ;
-                await writer?.close ();
-            }
             return true;
+            }
+            return false;
         }
         catch (e) 
         {
@@ -133,3 +141,7 @@ export const LOG_LEVEL: LogLevel = APP_ENV === Env.production ? 'warn' : 'log';
 export const LOG_FILE : string | undefined =  process.env.REACT_APP_APP_LOG_FILE ;
 
 export const logger = new ConsoleLogger({ level: LOG_LEVEL, file: LOG_FILE });
+
+
+ 
+

@@ -4,13 +4,13 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
-
+import Spinner from 'react-bootstrap/Spinner';
 import * as UserContext from '../../ContextStore/UserContext';
 import type { User } from '../../Types/@types.user';
 import Register from '../Register/Register';
 import TableList from '../../Components/TableList/TableList';
 import { useEffect, useState } from 'react';
-import { TabContainerProps } from 'react-bootstrap';
+import { error } from 'console';
 
 const cont = { 
   margin: "3% auto",
@@ -35,7 +35,6 @@ type HTMLElementEvent<T extends HTMLElement> = Event & {
 
 enum UserAdminRoles { Admin = 'admin', Test = 'test', Dev = 'dev' };
 
-
 function Users({userContext}:Props) {
 
 const user = userContext?.user;
@@ -43,17 +42,20 @@ const name = user?.name;
 const isAdmin = user?.role === 'admin' || user?.role === 'test' ;
 
 const [isLoading, setIsLoading] = useState (false);
-const [data, setData] = useState ();
 const [key, setKey] = useState ("home");
+const [data, setData] = useState ();
+const [error, setError] = useState ();
 
 const handleClick = (e: React.MouseEvent<HTMLElement> & { target: HTMLButtonElement }) => { 
   console.log (e)
   const {target} = e ;
-  if (target) {
+  if (target)
+  { 
    // let t = target ;
    // if (t.id !== key) setKey (t.id);
   } 
 }
+
 const handleSelect = (eventKey: string | null,  event?: React.SyntheticEvent<any, Event>) => {
   if (eventKey && eventKey !== key) setKey (eventKey);
 
@@ -61,7 +63,7 @@ const handleSelect = (eventKey: string | null,  event?: React.SyntheticEvent<any
 
 useEffect (() => { 
   
-  if (key === "profile") { 
+  if (key === "profiles") { 
     setIsLoading (true); 
     getUsersAccounts ();
  }
@@ -84,6 +86,7 @@ const getUsersAccounts = async () => {
       const userList = await results.json ();
       console.log (userList)
       setData (userList);
+      if (isLoading) setIsLoading (false);
     }
     return;
   }
@@ -95,7 +98,6 @@ const getUsersAccounts = async () => {
     if (isLoading) setIsLoading (false);
   }
 }
-  
   return (
     <Container style={ cont } >
         <h1>Users Account Page</h1>
@@ -106,15 +108,27 @@ const getUsersAccounts = async () => {
                 onSelect={handleSelect}
                 onClick={handleClick}
           >
-            <Tab eventKey="home" title="Home" tabAttrs={{id:"home"}}> 
+            <Tab eventKey="home" title="Home" > 
                 {
                   `${name} Home Page`
                 }    
+                <Form> 
+
+
+                </Form>
+
+               
+
             </Tab>
-            <Tab eventKey="profile" title="Profile" tabAttrs={{id:"profile"}}>
+            <Tab eventKey="profiles" title="Profiles" >
               {
-                data &&
-                <TableList data={data} title='Accounts'/>
+                data ?
+                  <TableList data={data} editable={isAdmin} title='Accounts'/>
+                  : 
+                    isLoading ?
+                      <Spinner animation="border" />
+                      :
+                        error
               }
             </Tab>
             <Tab eventKey="register" title="Register"  disabled={isAdmin}  >

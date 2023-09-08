@@ -4,8 +4,9 @@ import Nav from 'react-bootstrap/Nav';
 import { Link, NavLink } from 'react-router-dom';
 
 interface Props {
-  to: string ;
+  to?: string ;
   children: React.ReactNode;
+  onClick?:Function
 }
 
 const style = {
@@ -20,7 +21,7 @@ const style = {
   transition: 'color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out',
 }
 
-function Links ({to, children}: Props) {
+function Links ({to='#', children, onClick}: Props) {
 
   const changeBackground = (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.currentTarget.style.background = 'grey';
@@ -31,8 +32,16 @@ function Links ({to, children}: Props) {
     e.currentTarget.style.background = '0';
     e.currentTarget.style.color = 'var(--bs-nav-link-color)';
   }
+  
+  const handleClick = (e: React.MouseEvent<HTMLElement>) => 
+  {
+    if (onClick) {
+  
+      return onClick (e);
+    }  
+  }
   return (
-    <Nav.Item><NavLink onMouseEnter={changeBackground}  onMouseLeave={changeBackgroundBack} style={style} to={to}>{children}</NavLink></Nav.Item>
+    <Nav.Item onClick={handleClick}><NavLink onMouseEnter={changeBackground}  onMouseLeave={changeBackgroundBack} style={style} to={to}>{children}</NavLink></Nav.Item>
   );
 }
 

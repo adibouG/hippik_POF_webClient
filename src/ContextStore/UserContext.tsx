@@ -5,8 +5,10 @@ import { UserData } from '../Types/@types.user';
 
 export type UserContextType = {
     user: User | UserData | null;
+    sessionId: string | null;
     loggedAt: Date | null;
-    userLogIn: (data: FormData, header: Headers, loginCallback?: Function | null) => Promise<boolean>;
+    userLogIn: (data: any, header: Headers, loginCallback?: Function | null) => Promise<boolean> ;
+    userLogOut: () => Promise<boolean> ;
   }
 
 export const UserContext = React.createContext<UserContextType | null>(null);
@@ -23,54 +25,60 @@ enum Action {
   LogOut
 }
 
-function getCookie (name: string) {
-
-  const cookies = decodeURIComponent (document.cookie).split (';')
-  const cookie = cookies.find (item => item.includes (`${name}=`));
-  if (cookie)
-  {
-    return cookie.substring(`${name}=`.length, cookie.length);
-  }
-  return null;   
-}
 
 function UserProvider ({ children }: Props ) {
   
   const [user, setUser] = React.useState<User | null>(null);
   const [loggedAt, setLoggedAt] = React.useState<Date | null>(null);
+  const [sessionId, setSessionId] = React.useState<string | null>(null);
   
   const actions = React.useRef([ Action.None ]);
   
   React.useEffect ( ( ) => {
-
-    if (actions.current.at (actions.current.length - 1) === Action.LogInRequest && user && user.id) 
+    
+    if (actions.current.at (-1) === Action.LogInRequest && user && user.id) 
     {
       setLoggedAt (new Date ());
       actions.current.push (Action.LogIn);
     }
-    else if (actions.current.at (actions.current.length - 1) === Action.LogIn && !user) 
+    else if (actions.current.at (-1) === Action.LogIn && !user) 
     {
-      if (loggedAt && ((loggedAt?.getDate () <= (new Date ().getDate () + 1 )) && (loggedAt?.getDate () >= (new Date ().getDate () - 1 ))))
+      const userCookie = getCookie ('user');
+      const userLoggedAtCookie = getCookie ('userLoggedAt');
+      const userSessionIdCookie = getCookie ('sessionid');
+      if (userCookie) 
+      { 
+        const userData = new UserData (JSON.parse (userCookie));
+        setUser (userData);
+      }
+      if (userLoggedAtCookie) 
       {
-        const userCookie = getCookie ('user');
-        const userLoggedAtCookie = getCookie ('userLoggedAt');
-        if (userCookie) 
-        { 
-          const userData = new UserData (JSON.parse (userCookie));
-          setUser (userData);
-        }
-        if (userLoggedAtCookie) 
-        {
-          const userLoggedAt = new Date (userLoggedAtCookie); 
-          setLoggedAt (userLoggedAt); 
-        }
+        const userLoggedAt = new Date (userLoggedAtCookie); 
+        setLoggedAt (userLoggedAt); 
+      }
+      if (userSessionIdCookie) 
+      {
+        const userSessionId = userSessionIdCookie ; 
+        setSessionId (userSessionId); 
       }
     }
     return ;
-  } , [user, loggedAt] );
+  } , [user, sessionId, loggedAt] );
   
   
-  const userUpdate = (user: User) : void => {}
+
+  function getCookie (name: string) {
+    let value = '';
+    const cookies = decodeURIComponent (document.cookie).split (';')
+    const cookie = cookies.find (item => item.includes (`${name}=`));
+    if (cookie)
+    {
+      let result = cookie.split ('=').at (1)?.toString () || ''; 
+      value = (result.startsWith ('j:{' )) ? result.substring (`j:`.length, result.length) : result; // needed to get ride of expressjs 'hint' added to a json object  
+    }
+    return value;   
+  }
+
   
   const userLogIn = async (data: any, header: Headers, loginCallback?: Function | null)  : Promise<boolean> => {
     try 
@@ -79,18 +87,20 @@ function UserProvider ({ children }: Props ) {
       const user = data.get ('user') as string; 
       const pwd = data.get ('pwd') as string; 
       const dataToSend =  { user , pwd }; 
-      
-      //const req: RequestInfo = new Request ('api/login', { method: 'POST', data: d, headers: header });
-      const res: Response = await fetch ('api/login', {method: 'POST', body: JSON.stringify(dataToSend), headers: header });
+      const res: Response = await fetch ('api/login', { method: 'POST', body: JSON.stringify(dataToSend), headers: header });
       if (res.ok)  
       { 
         console.log (`user ${user} logged in successfully`);
         const userData = await res.json ();
-        console.log (userData);
         const logged = new UserData (userData);
-        console.log (logged);
-        setUser (logged);
-        console.log (user);
+        const session = getCookie ('sessionid');
+        if (session) 
+        {
+          setUser (logged);
+          setSessionId (session);
+          setLoggedAt (new Date ());
+        }
+        if (loginCallback) loginCallback ();
         return true;
       }
       else
@@ -100,25 +110,47 @@ function UserProvider ({ children }: Props ) {
     }  
     catch (e) 
     {
+      const err = e as Error;
+      throw  err;
+    } 
+  }
+
+  const userLogOut = async () : Promise<boolean> => { 
+    try
+    {
+
+      actions.current.push (Action.LogOutRequest);    
+      
+      const dataToSend = user; 
+      const sessionid = getCookie ('sessionid');
+      const header = new Headers ();
+      header.append ('Content-Type', 'application/json');
+      header.append ('Authorization', `Basic ${ btoa (user?.id + ':' + sessionid)}`);
+      //const req: RequestInfo = new Request ('api/login', { method: 'POST', data: d, headers: header });
+      const res: Response = await fetch ('/api/logout', {method: 'POST', body: JSON.stringify(dataToSend), headers: header });
+      if (res.ok)  
+      { 
+        actions.current.push (Action.LogOut);    
+        console.log (`user ${user?.name} logged out successfully`);
+        setUser (null);
+        return true;
+      }
+      else
+      {
+        setUser (null);
+        return false ;
+      }
+    }  
+    catch (e) 
+    {
       const err: Error = e as Error;
+      setUser (null);
       alert (err.message);
       return false;
     }  
-  }
-
-  const userLogOut = () : boolean => { 
-    if (user)
-    {
-       setUser (null);
-       return true;
-    }
-    else
-    {
-      return false;
-    }
   } 
 
-  const userContextObj = { user, loggedAt, userLogIn };
+  const userContextObj = { user, sessionId, loggedAt, userLogIn,  userLogOut };
   
   return  (
     <UserContext.Provider value={userContextObj} >

@@ -10,12 +10,18 @@ import Links from '../Links/Links';
 
 interface Props {
   user?: User | null;
+  cbFunc? : () => Promise <boolean>;
 }
 
-function UserMenu({ user }: Props) {
+function UserMenu({ user, cbFunc }: Props) {
 
   const isLogged = user ? true : false;
   const isOnline = useOnlineStatus();
+  
+  const handleClick = (e) => { 
+
+    if (cbFunc) return cbFunc ();
+  }
 
   return (
   
@@ -32,7 +38,7 @@ function UserMenu({ user }: Props) {
               (isLogged) ? 
                 <>
                   <NavDropdown.Item><Links to="/users">Edit</Links></NavDropdown.Item>
-                  <NavDropdown.Item><Links to="/users/logout">LogOut</Links></NavDropdown.Item>
+                  <NavDropdown.Item><Links onClick={handleClick}>LogOut</Links></NavDropdown.Item>
                 </>
               :
                 <>

@@ -1,6 +1,4 @@
 import React, { ReactHTML, ReactHTMLElement, ReactNode } from 'react';
-import type { User } from '../Types/@types.user';
-import { UserData } from '../Types/@types.user';
 
 
 export type SearchContextType = { 
@@ -17,8 +15,15 @@ type Props = {
 function SearchProvider ({ children }: Props ) {
   
   const [search, setSearch] = React.useState<string | number | string [] | undefined>();
-  const addMarkup = (html: string) => {__html: html };
-  const replText = (h: string) => String(h).replaceAll (String(search), `<span style:"color: red">${search}</span>`); 
+ 
+  const addMarkup = (html: string) => {
+    const res = { _html : html  } ;
+    return res;
+  }
+ 
+  const replText = (h: string) => { 
+    return String(h).replace (RegExp('search', 'gi'), `<span style:"color: red">${search}</span>`);
+  } 
   
          
   //const updateComponent = (c) => c.forEach(element => {  

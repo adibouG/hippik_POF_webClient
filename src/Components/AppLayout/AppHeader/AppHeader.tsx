@@ -14,12 +14,13 @@ function AppHeader() {
   const searchTextData: SearchContext.SearchContextType | undefined = useContext(SearchContext.SearchContext);
   const user: User | null = userData?.user || null ;
 
+
   return (
   
       <Stack direction="horizontal" as="header" className="App-header">
         <NavigationMenu user={user}  />
         <Search searchContext={searchTextData}/>   
-        <UserMenu user={user} />
+        <UserMenu user={user} cbFunc={userData?.userLogOut} />
       </Stack>
 
     );
