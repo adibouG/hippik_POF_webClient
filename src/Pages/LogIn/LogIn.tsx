@@ -1,41 +1,37 @@
+import Row from 'react-bootstrap/Row';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
+import Form  from 'react-bootstrap/Form';
 import Spinner from 'react-bootstrap/Spinner';
+import { FormEvent, useEffect, useState, useContext } from "react";
+import { Form as RForm, Navigate, useFetcher, useFormAction, useLoaderData, useNavigate, ActionFunctionArgs} from "react-router-dom";
 import {logger} from '../../Components/Logger/Logger';
-import * as UserContext from '../../ContextStore/UserContext';
+import WaitDots from '../../Components/WaitDots/WaitDots';
+import {useUserContext} from '../../ContextStore/UserContext';
 import type { User } from '../../Types/@types.user';
+import type { Styling } from '../../Types/@types.styles';
+import type { CProps } from '../../Types/@types.props';
+import './LogIn.css';
 
-import { useEffect, useState } from "react";
-import { Navigate, useNavigate} from "react-router-dom";
-import { FormText } from 'react-bootstrap';
 
-interface Props {
-    userContext?: UserContext.UserContextType | null;
+export function action ({ loginFunc }: any) {
+  return async function ({ request }: ActionFunctionArgs) {
+    const formData = await request.formData();
+    const user = await loginFunc (formData); 
+  }
 }
-const cont = { 
-  margin: "3% auto",
-  width: 'auto', 
-  display: 'flex',
-  flexFlow : "column",
-  justifyContent: 'center',
-  alignItems: 'center' 
-};
-const form = { 
-  border:"1px solid grey",
-  padding: '15px', 
-  borderRadius: '15px', 
-  boxShadow: '0px 0px 20px 20px' 
-};
 
-function LogIn({userContext}: Props) {
-  
+function LogIn ({ loginCb }: CProps) {
   
   const navig = useNavigate();
-  const [isLoading, setIsLoading] = useState (false); 
+  const fetcher = useFetcher() ;
+  const formAct = useFormAction ();
+  const ldata = useLoaderData();
+  const [isLoading, setIsLoading] = useState (fetcher.state !== 'idle'); 
   const [error, setError] = useState<Error>(); 
- // useEffect (() => { 
-    
+  const userContext = useUserContext (); 
+  const {user, sessionId, loginFunc} = userContext;
+
   //   if (!userContext?.user) 
   //   {
   //     const user = userContext?.getCookie('user');
@@ -48,18 +44,20 @@ function LogIn({userContext}: Props) {
   //   } 
   // }, []);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-   
-    try
+  
+ const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  
+  try
     {
 //      event.currentTarget.elements.
       event.preventDefault();
-      event.stopPropagation ();
+ //     event.stopPropagation ();
 
       const data: FormData = new FormData (event.currentTarget) ;
-      const head:  Headers = new Headers ({ "Content-Type": "application/json" }) ;
+      const head:  Headers = new Headers ({ "Content-Type": "multipart/form-data" }) ;
+
       setIsLoading (true);
-      const user = await  userContext?.userLogIn (data, head);
+      const user = loginFunc ? await loginFunc (data, head) : null;
       setIsLoading(false);
       if (user) 
       {
@@ -79,29 +77,43 @@ function LogIn({userContext}: Props) {
   }
 
     return (
-      <Container style={ cont } >
-        <Form onSubmit={handleSubmit} style={ form }>
+      <Container className='LogIn'  >
+        <RForm className='form' method="POST" action='/api/login' encType='multipart/form-data' 
+        onSubmit={handleSubmit}
+         >
+        {
+          isLoading &&
+          <div className='LoadingModalPosition'>
+            <Container className={isLoading? 'ShowLoadingModal' : 'HideLoadingModal' } >
+               <Spinner />
+            </Container>  
+          </div>
+        }
           <Form.Label><h1>Log In</h1></Form.Label>
           <Form.Group className="mb-3" controlId="userInput">
-            <Form.Label>Name or Email address</Form.Label>
+            <Form.Label>Name or Email</Form.Label>
             <Form.Control name='user' type="text" placeholder="accountname or name@example.com" />
           </Form.Group>
           <Form.Group className="mb-3" controlId="pwdInput">
             <Form.Label>Password</Form.Label>
             <Form.Control name='pwd' type="password"  />
           </Form.Group>
-          <Button variant="primary" type="submit" disabled={isLoading}>
-            {
-              isLoading &&
-                <Spinner /> 
-            }
-            LogIn
-          </Button>
-        </Form>
-        <FormText>
-            {error?.message}
-        </FormText>
-
+         
+          <Form.Group as={Row} className="mb-3" controlId="errorDisplay">
+            <Form.Text muted>
+                {error?.message}
+            </Form.Text>
+          </Form.Group>
+          <Form.Group as={Row} className="mb-3" >
+        
+            <Button variant="primary" type="submit" disabled={isLoading}>
+              {
+                isLoading ? <WaitDots /> : 'LogIn'
+              }
+            </Button>
+        
+          </Form.Group>
+        </RForm>
 
       </Container>
     );

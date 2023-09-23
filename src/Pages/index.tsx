@@ -1,7 +1,8 @@
 
 import {useContext} from 'react';
-import {Route, Routes} from 'react-router-dom';
-import LogIn from './LogIn/LogIn';
+import {Navigate, Route, Routes, redirect} from 'react-router-dom';
+import LogIn, {action as loginAction} from './LogIn/LogIn';
+import LogOut from './LogOut/LogOut';
 import Contests from './Contests/Contests';
 import Register from './Register/Register';
 import Users from './Users/Users';
@@ -15,38 +16,46 @@ function PageIndex() {
   const userContext: UserContext.UserContextType | null = useContext(UserContext.UserContext);
   const user: User |  null | undefined = userContext?.user;
   const sessionId: string |  null | undefined = userContext?.sessionId;
+  const loginFunc: any  = userContext?.userLogIn ;
+  const isLogged: boolean = user ? true : false;
   const isAdmin: boolean = user?.role === 'admin' || user?.role === 'test';
   return (
+  <>
   <Routes>
-    { /* New User Access & other Guest requests Form / (sent to Admins) */ }
-    <Route path="/register" element={ <Register user={user} /> } />
-
-    <>
+    
+    <Route  element={ <AppLayout />} >
       {
-
-        userContext && user && user.id 
+        isLogged
         ? 
         // User Context set up i.e. User Logged & User session
-        <Route element={ <AppLayout />} >
-          <Route path="/main" element={<MainBoard />} />
-          <Route path="/users/" element={<Users userContext={userContext} />} >
+        <>
+          <Route path="main" element={<MainBoard />} />
+          <Route  path="users/*"  Component={Users}  >
             <Route path="home" element={<Register user={user} />} />
             {
               isAdmin
-              && <Route path="new" element={<Register user={user} />} />
+              && <Route path="create" element={<Register user={user} />} />
             }               
           </Route>  {/*Users*/}
-          <Route path="/contests" element={<Contests user={user} session={sessionId} />} />
-        
-        </Route> //AppLayout
+          <Route path="contests" element={<Contests user={user} session={sessionId} /> } />
+          <Route path="logout" element={<LogOut user={user} session={sessionId} /> } />
+        </>
+          
         :
-        // no User Context set up i.e. no User Loged nor User session  
-        <Route path="/login" element={ <LogIn userContext={userContext} /> } />
-      }       
-    </>
-
+        // New User Access & other Guest requests Form / (sent to Admins) 
+            <>
+        <Route path="getaccount" element={ <Register user={user} /> } />
+        <Route  path="login" Component={LogIn} 
+                action={loginAction ({ loginFunc })}  
+        />  
+        </>
+      
+      }
+        
+    </Route> {/*AppLayout*/}
   </Routes>
-
+  <Navigate to={'/login'} />
+</>
     );
 }
 

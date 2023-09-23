@@ -1,4 +1,6 @@
-
+import { create } from "domain";
+import { type } from "os";
+import { Component, ComponentProps, ReactComponentElement, ReactPropTypes, Ref, createRef, useRef } from "react";
  
 /*
 *  Signature of a logging function 
@@ -11,18 +13,20 @@ export interface LogFn {
 * Basic logger interface 
 */
 
-export interface Logger {
+export interface ConsoleLogger 
+{
   log: LogFn;
   warn: LogFn;
   error: LogFn;
-  cache?: string [];
-  file?: string | LogFile;
   send?: () => Promise<void>; 
+  cache?: string [];
+  options? : LoggerOption;
+  //file?: string | LogFile;
+  //unique?: boolean;
+  instanceRef?: React.RefObject<ConsoleLogger>;
 }
 
-export interface FileSystemFileHandleExt extends FileSystemFileHandle {
-    createWritable(options?: FileSystemCreateWritableOptions): Promise<FileSystemWritableFileStream>;
-}
+
 /*
 * Log levels 
 */
@@ -91,25 +95,46 @@ class LogFile {
 /*
 * Logger which outputs to the browser console and a file if specified (file should be sent to server at session end)
 */
+interface LoggerOption 
+{
+  level? : LogLevel;
+  file? : string | LogFile; 
+  isSingleton? :boolean;
+}
 
-export class ConsoleLogger implements Logger {
+
+export class Logger extends Component implements ConsoleLogger {
+  
   readonly log: LogFn;
   readonly warn: LogFn;
   readonly error: LogFn;
-  file?: string | LogFile; 
+  
   readonly send?: () => Promise<void>; 
-
-  constructor(options?: { level? : LogLevel, file? : string | LogFile }) {
-    const { level, file } = options || {}; 
+  readonly options? : LoggerOption;
+  instanceRef? : React.RefObject<this>;
+  
+  
+  constructor(loggerProps: React.ComponentProps<any>) {
     
+    const { options, props } = loggerProps || {}; 
+    const { level, file, isSingleton } = options || {}; 
+    super(props);
+    this.options = {} ;
+    this.options.isSingleton = (!isSingleton) ? true : isSingleton ;
+        
     if (file) 
     {
-        this.file = typeof file === 'string' ? new LogFile ({ filename: file  + '_' + Date.now ()}) : file;
+        this.options.file = typeof file === 'string' ? new LogFile ({ filename: file  + '_' + Date.now ()}) : file;
         this.send = async () => {
             //TODO: send file to serverr
         };
     }
+    if (this.options.isSingleton && (this.instanceRef?.current === this) ) 
+    {
+      return;
+    }
 
+    this.instanceRef = createRef<this> ();
     this.error = console.error.bind(console);
     if (level === 'error') 
     {
@@ -129,6 +154,8 @@ export class ConsoleLogger implements Logger {
   }
 }
 
+
+
 /*
 * The App environment 
 */
@@ -140,7 +167,7 @@ export const LOG_LEVEL: LogLevel = APP_ENV === Env.production ? 'warn' : 'log';
 
 export const LOG_FILE : string | undefined =  process.env.REACT_APP_APP_LOG_FILE ;
 
-export const logger = new ConsoleLogger({ level: LOG_LEVEL, file: LOG_FILE });
+export const logger = new Logger({ level: LOG_LEVEL, file: LOG_FILE });
 
 
  

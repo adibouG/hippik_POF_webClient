@@ -1,21 +1,25 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import type { User } from '../Types/@types.user';
 import { UserData } from '../Types/@types.user';
+import type { CProps } from '../Types/@types.props';
 
 
 export type UserContextType = {
     user: User | UserData | null;
     sessionId: string | null;
     loggedAt: Date | null;
-    userLogIn: (data: any, header: Headers, loginCallback?: Function | null) => Promise<boolean> ;
-    userLogOut: () => Promise<boolean> ;
+    userLogIn?: (data: any, header?: Headers, loginCallback?: Function | null) => Promise<boolean> ;
+    userLogOut?: () => Promise<boolean> ;
   }
+  
+const defaultUser = { 
+  user: null,
+  sessionId: null,
+  loggedAt:  null
+ };
 
-export const UserContext = React.createContext<UserContextType | null>(null);
+export const UserContext = React.createContext<UserContextType>(defaultUser);
 
-type Props = {
-    children?: React.ReactNode;
-}
 enum Action {
   None,
   LogInRequest,  
@@ -26,7 +30,7 @@ enum Action {
 }
 
 
-function UserProvider ({ children }: Props ) {
+function UserProvider ({ children }: CProps ) {
   
   const [user, setUser] = React.useState<User | null>(null);
   const [loggedAt, setLoggedAt] = React.useState<Date | null>(null);
@@ -80,14 +84,15 @@ function UserProvider ({ children }: Props ) {
   }
 
   
-  const userLogIn = async (data: any, header: Headers, loginCallback?: Function | null)  : Promise<boolean> => {
+  const userLogIn = async (data: any, header?: Headers, loginCallback?: Function | null)  : Promise<boolean> => {
     try 
     {
       actions.current.push (Action.LogInRequest);    
-      const user = data.get ('user') as string; 
-      const pwd = data.get ('pwd') as string; 
-      const dataToSend =  { user , pwd }; 
-      const res: Response = await fetch ('api/login', { method: 'POST', body: JSON.stringify(dataToSend), headers: header });
+//      const user = data.get ('user') as string; 
+  //    const pwd = data.get ('pwd') as string; 
+    //  const dataToSend =  { user , pwd }; 
+     // const res: Response = await fetch ('api/login', { method: 'POST', body: JSON.stringify(dataToSend), headers: header });
+      const res: Response = await fetch ('api/login', { method: 'POST', body: data, headers: header });
       if (res.ok)  
       { 
         console.log (`user ${user} logged in successfully`);
@@ -157,7 +162,8 @@ function UserProvider ({ children }: Props ) {
         {children}
     </UserContext.Provider>
   )
-}
+} 
+ 
+export const useUserContext = () => useContext (UserContext) ; 
 
-
-  export default UserProvider;
+export default UserProvider;  

@@ -1,4 +1,4 @@
-import { Routes, Route, createBrowserRouter, createRoutesFromElements, RouterProvider } from 'react-router-dom' ;
+import { Route, createBrowserRouter, createRoutesFromElements, RouterProvider } from 'react-router-dom' ;
 import Spinner from 'react-bootstrap/Spinner';
 import UserProvider from './ContextStore/UserContext';
 import PageIndex from './Pages';
@@ -7,7 +7,7 @@ import './App.css';
   
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route  path="/" Component={PageIndex} /> 
+    <Route  path="*" Component={PageIndex} /> 
   )
 );
 
