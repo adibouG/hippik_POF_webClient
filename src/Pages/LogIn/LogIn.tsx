@@ -30,7 +30,7 @@ function LogIn ({ loginCb }: CProps) {
   const [isLoading, setIsLoading] = useState (fetcher.state !== 'idle'); 
   const [error, setError] = useState<Error>(); 
   const userContext = useUserContext (); 
-  const {user, sessionId, loginFunc} = userContext;
+  const {user, sessionId, userLogIn} = userContext;
 
   //   if (!userContext?.user) 
   //   {
@@ -57,7 +57,7 @@ function LogIn ({ loginCb }: CProps) {
       const head:  Headers = new Headers ({ "Content-Type": "multipart/form-data" }) ;
 
       setIsLoading (true);
-      const user = loginFunc ? await loginFunc (data, head) : null;
+      const user = userLogIn ? await userLogIn (data, head) : null;
       setIsLoading(false);
       if (user) 
       {

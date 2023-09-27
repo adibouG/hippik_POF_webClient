@@ -1,14 +1,16 @@
+import { createExternalModuleExport } from "typescript";
+
 type PropName =  string | number | symbol;
 type PropValue =  any | unknown | undefined | null;
-declare interface UserProps 
+declare interface UserProps extends React.ComponentProps<any>
 {
-    [propname: PropName] : PropValue ;
-}
-declare interface Prop extends React.ComponentProps<any>, UserProps 
-{
-    // 
+    [propname: PropName]: PropValue ;
 }
 
-export type Props =  Prop | Prop[] | { [id: PropName ]: Prop | Props } ;
-export type CProps =  Props & ({ [propname: PropName] : Prop } | null ) ;
+
+//export type Props =  Prop | Prop[] | { [id: PropName ]: Prop | Props };
+export type CProps =  UserProps | { [propname: PropName] :UserProps } | undefined | null ;  
+export interface UserComponentProps {
+    [propname: PropName] : CProps | any | null;
+};
  
